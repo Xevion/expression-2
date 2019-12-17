@@ -1,0 +1,141 @@
+@name Printer Bank Manager V1
+@inputs EGP:wirelink
+@persist PRINTER_COSTS:table PRINTER_TYPE:string Selected:array
+@trigger 
+
+# Chat Commands
+# &tax <float> - Moves the tax to a certain level. 1.00 = +100%. Can be negative.
+# &clearinv - Forcefully clear selected items
+# &cleargui - Move to main menu
+# &clearall - clearinv & cleargui combined
+# &time - Set the current contract time (in hours).
+# &sumcost - Print the raw cost of buying the selected items.
+# &sumtax - Print the inflicted payment upon buying the select items.
+# &sumcontract - The amount of money paid upon contract signature.
+
+# Begin program intervals, timers etc.
+runOnChat(1)
+
+# Selected - An array of strings holding the names
+
+# Constants and other first-only executions
+if (first()) {
+    EGP:egpClear() # Clear in-case E2 is repasted
+    PRINTER_TYPE = "none" # holds the changing menu type the user is currently on
+    PRINTER_COSTS = table() # holds the constant costs of printers
+    PRINTER_MAX = table() # holds constants concerning the maximum of each printer
+    PRINTER_UPGRADE = table()
+    
+    ### Configure printer costs (bitminer only)
+    # SERVER 7 x CPU ($2,000) = $14,000
+    # S2 -
+    # S1 - 3 Cores ($50,000), 7 CPUs ($2,000)
+        
+    ## Configure printer price costs here in-case they change
+    # Bitminers
+    PRINTER_COSTS["bitminer_rack", number] = 100000
+    PRINTER_COSTS["bitminer_server", number] = 50000
+    PRINTER_COSTS["bitminer_s2", number] = 25000
+    PRINTER_COSTS["bitminer_s1", number] = 5000
+    PRINTER_COSTS["bitminer_extensionlead", number] = 500
+    PRINTER_COSTS["bitminer_powerlead", number] = 500
+    PRINTER_COSTS["bitminer_generator", number] = 6000
+    PRINTER_COSTS["bitminer_fueltank", number] = 10000
+    PRINTER_COSTS["bitminer_fuelline", number] = 1500
+    
+    # Moneyprinters
+    PRINTER_COSTS["printer_sapphire", number] = 20000
+    PRINTER_COSTS["printer_emerald", number] = 45000
+    PRINTER_COSTS["printer_ruby", number] = 60000
+    PRINTER_COSTS["printer_diamond", number] = 85000
+    PRINTER_COSTS["printer_platinum", number] = 150000
+    PRINTER_COSTS["printer_god", number] = 350000
+    
+    ## Configure printer maximums here in-case they change
+    # Bitminers
+    PRINTER_MAX["bitminer_rack", number] = 2
+    PRINTER_MAX["bitminer_server", number] = 16
+    PRINTER_MAX["bitminer_s2", number] = 4
+    PRINTER_MAX["bitminer_s1", number] = 4
+    PRINTER_MAX["bitminer_extensionlead", number] = 8
+    PRINTER_MAX["bitminer_powerlead", number] = 10
+    PRINTER_MAX["bitminer_generator", number] = 3
+    PRINTER_MAX["bitminer_fueltank", number] = 2
+    PRINTER_MAX["bitminer_fuelline", number] = 2
+    
+    # Moneyprinters
+    PRINTER_MAX["printer_sapphire", number] = 2
+    PRINTER_MAX["printer_emerald", number] = 2
+    PRINTER_MAX["printer_ruby", number] = 2
+    PRINTER_MAX["printer_diamond", number] = 2
+    PRINTER_MAX["printer_platinum", number] = 1
+    PRINTER_MAX["printer_god", number] = 1
+}
+
+# Graphics Drawing
+# Main Menu
+function main_menu(){
+    ### Center Gradients
+    ## Top Portion Gradient
+    EGP:egpBox(1,vec2(256,256),vec2(520,520))
+    EGP:egpMaterial(1,"gui/gradient_up")
+    EGP:egpColor(1,vec(42,200,240))
+    ## Bottom Portion Gradient
+    EGP:egpBox(2,vec2(256,256),vec2(520,520))
+    EGP:egpMaterial(2,"gui/gradient_down")
+    EGP:egpColor(2,vec(1,70,90))
+    ### Right/Left Lighter Boxes
+    ## Left
+    EGP:egpBox(3,vec2(15,256),vec2(35,550))
+    EGP:egpColor(3,vec(1,110,140))
+    ## Right
+    EGP:egpBox(4,vec2(495,256),vec2(35,550))
+    EGP:egpColor(4,vec(1,110,140))
+    ### Top/Bottom Underlying Dark Cyan
+    ## Bottom
+    EGP:egpBox(5,vec2(256,495),vec2(450,35))
+    EGP:egpColor(5,vec(1,110,140))
+    ## Top
+    EGP:egpBox(6,vec2(256,15),vec2(450,35))
+    EGP:egpColor(6,vec(1,110,140))
+    ### Top & Bottom Ultralight Trim Corners
+    ## Top    
+    EGP:egpBox(7,vec2(256,18),vec2(485,5))
+    EGP:egpColor(7,vec(1,200,255))
+    ## Bottom    
+    EGP:egpBox(8,vec2(256,493),vec2(485,5))
+    EGP:egpColor(8,vec(1,200,255))
+    ### Left and Right Vertical Trim
+    ## Right    
+    EGP:egpBox(9,vec2(496,256),vec2(5,478))
+    EGP:egpColor(9,vec(1,200,255))
+    ## Left
+    EGP:egpBox(10,vec2(16,256),vec2(5,478))
+    EGP:egpColor(10,vec(1,200,255))
+    ### Top Title Text Box
+    ## Rounded Box w/ Shadow
+    EGP:egpRoundedBox(11,vec2(254,20),vec2(440,40))
+    EGP:egpColor(11,vec(1,110,140))    
+    # Shadow Element
+    EGP:egpRoundedBox(12,vec2(254,20),vec2(434,34))
+    EGP:egpColor(12,vec(1,200,255)) 
+    ## Text
+    EGP:egpText(15,owner():name():left(13)+"'s Printer Bank",vec2(256,20))
+    EGP:egpFont(15,"coolvetica",35)
+    EGP:egpAlign(15,1,1) 
+    EGP:egpColor(15,vec(0,0,0))
+    ### Bottom Subtitle Text Box
+    ## Rounded Box w/ Shadow
+    EGP:egpRoundedBox(13,vec2(254,490),vec2(440,40))
+    EGP:egpColor(13,vec(1,110,140))
+    # Shadow Element
+    EGP:egpRoundedBox(14,vec2(254,490),vec2(434,34))
+    EGP:egpColor(14,vec(1,200,255)) 
+    ## Text
+    EGP:egpText(16,"Select a Type of Printer to Sell",vec2(255,490))
+    EGP:egpFont(16,"coolvetica",26)
+    EGP:egpAlign(16,1,1)
+    EGP:egpColor(16,vec(0,0,0))
+}
+
+main_menu()
