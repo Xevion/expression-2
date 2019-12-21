@@ -1,14 +1,15 @@
 @name YouTube MP3 Soundplayer V1
 @inputs 
 @outputs 
-@persist Radio:entity
+@persist Radio:entity URL:string
 @trigger 
 
+#interval(100)
 if(first()) {
     Radio = entity()
     URL = "https://www.dropbox.com/s/7l6v3nync6cq575/oki doki boomer.mp3?dl=0&raw=1"
 }
 
 if(streamCanStart()) {
-    Radio:streamStart(randint(0, 100), 100, URL)
+    Radio:streamStart(1, 100, URL)
 }
