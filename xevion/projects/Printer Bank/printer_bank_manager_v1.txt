@@ -4,15 +4,15 @@
 @trigger 
 
 # Chat Commands
-# &tax <float> - Moves the tax to a certain level. 1.00 = +100%. Can be negative.
-# &clearinv - Forcefully clear selected items
-# &cleargui - Move to main menu
-# &clearall - clearinv & cleargui combined
-# &time <time> - Set the current contract time (in hours).
-# &sumcost - Print the raw cost of buying the selected items.
-# &sumtax - Print the inflicted payment upon buying the select items.
-# &sumcontract - The amount of money paid upon contract signature.
-# &name <name> - Sets the name of the Shop to the specificed name. Useful in-case of long names.
+# !tax <float> - Moves the tax to a certain level. 1.00 = +100%. Can be negative.
+# !clearinv - Forcefully clear selected items
+# !cleargui - Move to main menu
+# !clearall - clearinv & cleargui combined
+# !time <time> - Set the current contract time (in hours).
+# !sumcost - Print the raw cost of buying the selected items.
+# !sumtax - Print the inflicted payment upon buying the select items.
+# !sumcontract - The amount of money paid upon contract signature.
+# !name <name> - Sets the name of the Shop to the specificed name. Useful in-case of long names.
 
 # Begin program intervals, timers etc.
 runOnChat(1)
