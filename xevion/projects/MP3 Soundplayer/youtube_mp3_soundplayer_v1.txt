@@ -4,12 +4,19 @@
 @persist Radio:entity URL:string
 @trigger 
 
-#interval(100)
+runOnChat(1)
+runOnHTTP(1)
 if(first()) {
-    Radio = entity()
-    URL = "https://www.dropbox.com/s/7l6v3nync6cq575/oki doki boomer.mp3?dl=0&raw=1"
+    print("Attempting fetch of resource @ " + realtime())
+    httpRequest("example.com")
+    print("Request made")
 }
+if(httpClk()){print("Request finished"), print(httpData())}
 
-if(streamCanStart()) {
-    Radio:streamStart(1, 100, URL)
+if(chatClk(owner())) {
+    Message =  lastSaid():explode(" ")
+    if(Message[1, string] == "!play") {
+        hideChat(1)
+        entity():streamStart(1, "https://xevion.dev/stream/youtube/sWe4sPvzRLw")
+    }
 }
